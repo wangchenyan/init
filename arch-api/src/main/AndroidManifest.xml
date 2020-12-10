@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="me.wcy.arch.api">
+
+    <application>
+        <provider
+            android:name="me.wcy.arch.module.ArchProvider"
+            android:authorities="${applicationId}.me.wcy.arch"
+            android:exported="false" />
+    </application>
+</manifest>

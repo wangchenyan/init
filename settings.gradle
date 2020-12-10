@@ -1,0 +1,5 @@
+include ':sample-lib'
+include ':arch-compiler'
+include ':arch-api'
+include ':arch-annotation'
+include ':sample'

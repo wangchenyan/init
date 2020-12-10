@@ -1,0 +1,15 @@
+apply plugin: 'auto-register'
+
+/**
+ * Module 收集，必须！！！
+ */
+autoregister {
+    registerInfo = [
+            [
+                    'scanInterface'        : 'me.wcy.arch.annotation.ModuleLoader',
+                    'codeInsertToClassName': 'me.wcy.arch.module.ModuleManager',
+                    'registerMethodName'   : 'register',
+                    'include'              : ['me/wcy/arch/annotation/moduleloader/.*']
+            ]
+    ]
+}
