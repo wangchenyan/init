@@ -14,12 +14,10 @@ public abstract class BaseModule implements Comparable<BaseModule> {
 
     public abstract void onCreate(Object context);
 
+    public abstract boolean isSupportMultiProcess();
+
     public int getPriority() {
         return NORM_PRIORITY;
-    }
-
-    public boolean isSupportMultiProcess() {
-        return false;
     }
 
     public void onTrimMemory(int level) {

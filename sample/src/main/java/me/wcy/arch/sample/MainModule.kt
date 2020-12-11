@@ -15,4 +15,8 @@ class MainModule : BaseModule() {
             Log.e("MainModule", "MainModule onCreate")
         }
     }
+
+    override fun isSupportMultiProcess(): Boolean {
+        return false
+    }
 }
