@@ -47,7 +47,7 @@ class ModuleProcessor : AbstractProcessor() {
 
         this.moduleName = ProcessorUtils.formatModuleName(moduleName)
 
-        Log.w("[Arch] Start to deal module ${this.moduleName}")
+        Log.i("[Arch] Start to deal module ${this.moduleName}")
     }
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {
@@ -69,7 +69,7 @@ class ModuleProcessor : AbstractProcessor() {
             return false
         }
 
-        Log.w("[Arch] Found modules, size is ${moduleElements.size}")
+        Log.i("[Arch] Found modules, size is ${moduleElements.size}")
 
         val moduleType = elementUtil.getTypeElement("me.wcy.arch.module.BaseModule")
 
@@ -98,7 +98,7 @@ class ModuleProcessor : AbstractProcessor() {
         for (element in moduleElements) {
             val typeMirror = element.asType()
             if (typeUtil.isSubtype(typeMirror, moduleType.asType())) {
-                Log.w("[Arch] Found module: $typeMirror")
+                Log.i("[Arch] Found module: $typeMirror")
 
                 val activityCn = ClassName.get(element as TypeElement)
                 /**

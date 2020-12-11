@@ -13,7 +13,6 @@ object Log {
         sMessenger = messager
     }
 
-    @Deprecated("NOTE 级别的日志在 Kotlin 中无法输出", ReplaceWith("Log.w()"))
     fun i(msg: String) {
         sMessenger?.printMessage(Diagnostic.Kind.NOTE, msg + "\r\n")
     }
@@ -28,7 +27,8 @@ object Log {
 
     fun e(msg: String, tr: Throwable) {
         sMessenger?.printMessage(
-            Diagnostic.Kind.ERROR, msg + "\r\n" + getStackTraceString(tr) + "\r\n"
+            Diagnostic.Kind.ERROR,
+            msg + "\r\n" + getStackTraceString(tr) + "\r\n"
         )
     }
 
