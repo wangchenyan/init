@@ -1,7 +1,7 @@
 package me.wcy.arch.compiler
 
 import com.squareup.javapoet.*
-import me.wcy.arch.annotation.BaseModule
+import me.wcy.arch.annotation.AbsModule
 import me.wcy.arch.annotation.Module
 import me.wcy.arch.annotation.ModuleLoader
 import javax.annotation.processing.AbstractProcessor
@@ -71,14 +71,14 @@ class ModuleProcessor : AbstractProcessor() {
 
         Log.w("[Arch] Found modules, size is ${moduleElements.size}")
 
-        val moduleType = elementUtil.getTypeElement(BaseModule::class.java.name)
+        val moduleType = elementUtil.getTypeElement("me.wcy.arch.module.BaseModule")
 
         /**
          * Param type: List<BaseModule>
          */
         val inputMapTypeName = ParameterizedTypeName.get(
             ClassName.get(List::class.java),
-            ClassName.get(BaseModule::class.java)
+            ClassName.get(AbsModule::class.java)
         )
 
         /**
