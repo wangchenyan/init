@@ -1,7 +1,7 @@
 package me.wcy.arch.compiler
 
 import com.squareup.javapoet.*
-import me.wcy.arch.annotation.AbsModule
+import me.wcy.arch.annotation.BaseModule
 import me.wcy.arch.annotation.Module
 import me.wcy.arch.annotation.ModuleLoader
 import javax.annotation.processing.AbstractProcessor
@@ -71,14 +71,14 @@ class ModuleProcessor : AbstractProcessor() {
 
         Log.w("[Arch] Found modules, size is ${moduleElements.size}")
 
-        val moduleType = elementUtil.getTypeElement(AbsModule::class.java.name)
+        val moduleType = elementUtil.getTypeElement(BaseModule::class.java.name)
 
         /**
-         * Param type: List<AbsModule>
+         * Param type: List<BaseModule>
          */
         val inputMapTypeName = ParameterizedTypeName.get(
             ClassName.get(List::class.java),
-            ClassName.get(AbsModule::class.java)
+            ClassName.get(BaseModule::class.java)
         )
 
         /**
@@ -88,7 +88,7 @@ class ModuleProcessor : AbstractProcessor() {
             ParameterSpec.builder(inputMapTypeName, ProcessorUtils.PARAM_NAME).build()
 
         /**
-         * Method: @Override public void loadModule(List<AbsModule> moduleList)
+         * Method: @Override public void loadModule(List<BaseModule> moduleList)
          */
         val loadModuleMethodBuilder = MethodSpec.methodBuilder(ProcessorUtils.METHOD_NAME)
             .addAnnotation(Override::class.java)
@@ -102,7 +102,7 @@ class ModuleProcessor : AbstractProcessor() {
 
                 val activityCn = ClassName.get(element as TypeElement)
                 /**
-                 * Statement: moduleList.add(new AbsModule());
+                 * Statement: moduleList.add(new BaseModule());
                  */
                 loadModuleMethodBuilder.addStatement(
                     "\$N.add(new \$T())", ProcessorUtils.PARAM_NAME, activityCn

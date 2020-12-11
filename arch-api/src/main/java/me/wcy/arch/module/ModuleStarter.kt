@@ -3,13 +3,13 @@ package me.wcy.arch.module
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.res.Configuration
-import me.wcy.arch.annotation.AbsModule
+import me.wcy.arch.annotation.BaseModule
 
 /**
  * Created by wcy on 2020/12/10.
  */
 internal object ModuleStarter {
-    private lateinit var moduleList: MutableList<AbsModule>
+    private lateinit var moduleList: MutableList<BaseModule>
 
     fun init(context: Context) {
         moduleList = ModuleManager.getModuleList()
