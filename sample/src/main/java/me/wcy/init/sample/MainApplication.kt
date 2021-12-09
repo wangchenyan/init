@@ -10,6 +10,6 @@ class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        CTaskManager.start(this, ProcessUtils.getProcessName(this) ?: "")
+        CTaskManager.start(this)
     }
 }

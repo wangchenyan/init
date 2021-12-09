@@ -1,9 +1,8 @@
-package me.wcy.init.sample
+package me.wcy.init.api
 
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Process
-import android.text.TextUtils
 import java.io.BufferedReader
 import java.io.FileInputStream
 import java.io.IOException
@@ -23,7 +22,7 @@ object ProcessUtils {
         return packageName == processName
     }
 
-    fun getProcessName(context: Context): String? {
+    fun getProcessName(context: Context): String {
         var processName = getProcessFromFile()
         if (processName == null || processName.isEmpty()) {
             // 如果装了xposed一类的框架，上面可能会拿不到，回到遍历迭代的方式
@@ -55,7 +54,7 @@ object ProcessUtils {
         }
     }
 
-    private fun getProcessNameByAM(context: Context): String? {
+    private fun getProcessNameByAM(context: Context): String {
         var processName: String? = null
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         while (true) {
@@ -68,7 +67,7 @@ object ProcessUtils {
                     }
                 }
             }
-            if (!TextUtils.isEmpty(processName)) {
+            if (processName != null && processName.isNotEmpty()) {
                 return processName
             }
             try {

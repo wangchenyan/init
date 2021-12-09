@@ -1,7 +1,6 @@
 package me.wcy.init.api
 
 import android.app.Application
-import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -55,7 +54,7 @@ class CTaskManager private constructor(
         }
 
         // 无依赖的同步任务
-        if (Looper.myLooper() == Looper.getMainLooper()) {
+        if (ThreadUtils.isInMainThread()) {
             singleSyncTasks.forEach { execute(it) }
         } else {
             singleSyncTasks.asFlow()
@@ -109,18 +108,26 @@ class CTaskManager private constructor(
                 "Skip task [${task.name}] cause the process [$processName] not match"
             )
         }
-        afterExecute(task)
+        afterExecute(task.name, task.children)
     }
 
-    private fun afterExecute(task: TaskInfo) = synchronized(completedTasks) {
-        completedTasks.add(task.name)
-        task.children.filter { completedTasks.containsAll(it.depends) }
-            .forEach { child ->
-                val dispatcher = if (child.background) Dispatchers.Default else Dispatchers.Main
-                flowOf(child).flowOn(dispatcher)
-                    .onEach { execute(it) }
-                    .launchIn(GlobalScope)
-            }
+    private fun afterExecute(name: String, children: List<TaskInfo>) {
+        synchronized(completedTasks) {
+            completedTasks.add(name)
+            children.filter { completedTasks.containsAll(it.depends) }
+                .forEach { task ->
+                    if (task.background.not() && ThreadUtils.isInMainThread()) {
+                        execute(task)
+                    } else {
+                        val dispatcher =
+                            if (task.background) Dispatchers.Default else Dispatchers.Main
+                        flowOf(task)
+                            .flowOn(dispatcher)
+                            .onEach { execute(it) }
+                            .launchIn(GlobalScope)
+                    }
+                }
+        }
     }
 
     private fun isMatchProgress(task: TaskInfo): Boolean {
@@ -152,6 +159,18 @@ class CTaskManager private constructor(
     companion object {
         private const val TAG = "CTaskManager"
 
+        /**
+         * 启动任务
+         */
+        fun start(app: Application) {
+            start(app, ProcessUtils.getProcessName(app))
+        }
+
+        /**
+         * 启动任务
+         *
+         * @param processName 当前进程名，如果 [start] 内部获取进程名不准确，可自行传入
+         */
         fun start(app: Application, processName: String) {
             CTaskManager(app, processName).start()
         }
