@@ -19,7 +19,7 @@ class CTaskManager private constructor(
     private val completedTasks: MutableSet<String> = mutableSetOf()
 
     fun start() {
-        val taskList = TaskCollector().taskList
+        val taskList = FinalTaskRegister().taskList
         checkDuplicateName(taskList)
         taskList.sortBy { it.priority }
         val taskMap = taskList.map { it.name to it }.toMap()

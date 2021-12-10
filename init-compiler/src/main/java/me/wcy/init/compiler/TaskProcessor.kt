@@ -1,15 +1,15 @@
 package me.wcy.init.compiler
 
-import com.squareup.javapoet.*
+import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import me.wcy.init.annotation.InitTask
+import me.wcy.init.annotation.ModuleTaskRegister
 import me.wcy.init.annotation.TaskInfo
-import me.wcy.init.annotation.TaskLoader
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Filer
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
@@ -60,7 +60,7 @@ class TaskProcessor : AbstractProcessor() {
         return SourceVersion.latestSupported()
     }
 
-    @ExperimentalStdlibApi
+    @DelicateKotlinPoetApi("")
     override fun process(
         annotations: MutableSet<out TypeElement>?,
         roundEnv: RoundEnvironment
@@ -73,28 +73,31 @@ class TaskProcessor : AbstractProcessor() {
         Log.i("[InitTask] Found tasks, size is ${taskElements.size}")
 
         val taskType = elementUtil.getTypeElement("me.wcy.init.api.IInitTask")
-        val taskInfoCn = ClassName.get(TaskInfo::class.java)
 
         /**
-         * Param type: List<ITaskInfo>
+         * Param type: MutableList<TaskInfo>
+         *
+         * There's no such type as MutableList at runtime so the library only sees the runtime type.
+         * If you need MutableList then you'll need to use a ClassName to create it.
+         * [https://github.com/square/kotlinpoet/issues/482]
          */
-        val inputMapTypeName = ParameterizedTypeName.get(
-            ClassName.get(List::class.java),
-            ClassName.get(TaskInfo::class.java)
-        )
+        val inputMapTypeName =
+            ClassName(
+                "kotlin.collections",
+                "MutableList"
+            ).parameterizedBy(TaskInfo::class.asTypeName())
 
         /**
-         * Param name: taskList
+         * Param name: taskList: MutableList<TaskInfo>
          */
         val groupParamSpec =
-            ParameterSpec.builder(inputMapTypeName, ProcessorUtils.PARAM_NAME).build()
+            ParameterSpec.builder(ProcessorUtils.PARAM_NAME, inputMapTypeName).build()
 
         /**
-         * Method: @Override public void loadTask(List<ITaskInfo> taskList);
+         * Method: override fun register(taskList: MutableList<TaskInfo>)
          */
-        val loadTaskMethodBuilder = MethodSpec.methodBuilder(ProcessorUtils.METHOD_NAME)
-            .addAnnotation(Override::class.java)
-            .addModifiers(Modifier.PUBLIC)
+        val loadTaskMethodBuilder = FunSpec.builder(ProcessorUtils.METHOD_NAME)
+            .addModifiers(KModifier.OVERRIDE)
             .addParameter(groupParamSpec)
 
         for (element in taskElements) {
@@ -103,21 +106,20 @@ class TaskProcessor : AbstractProcessor() {
             if (typeUtil.isSubtype(typeMirror, taskType.asType())) {
                 Log.i("[InitTask] Found task: $typeMirror")
 
-                val taskCn = ClassName.get(element as TypeElement)
+                val taskCn = (element as TypeElement).asClassName()
 
                 /**
-                 * Statement: taskList.add(new TaskInfo(name, onlyMainProcess, background,
-                 * priority, depends, task));
+                 * Statement: taskList.add(TaskInfo(name, background, priority, process, depends, task));
                  */
                 loadTaskMethodBuilder.addStatement(
-                    "\$N.add(new \$T(\$S, \$L, \$L, \$L, \$L, new \$T()))",
+                    "%N.add(%T(%S, %L, %L, %L, %L, %T()))",
                     ProcessorUtils.PARAM_NAME,
-                    taskInfoCn,
+                    TaskInfo::class.java,
                     task.name,
                     task.background,
                     task.priority,
-                    formatArray(task.process),
-                    formatArray(task.depends),
+                    ProcessorUtils.formatArray(task.process),
+                    ProcessorUtils.formatArray(task.depends),
                     taskCn
                 )
             }
@@ -126,30 +128,17 @@ class TaskProcessor : AbstractProcessor() {
         /**
          * Write to file
          */
-        JavaFile.builder(
-            ProcessorUtils.PACKAGE_NAME,
-            TypeSpec.classBuilder("TaskLoader\$$moduleName")
-                .addJavadoc(ProcessorUtils.JAVADOC)
-                .addSuperinterface(ClassName.get(TaskLoader::class.java))
-                .addModifiers(Modifier.PUBLIC)
-                .addMethod(loadTaskMethodBuilder.build())
-                .build()
-        )
+        FileSpec.builder(ProcessorUtils.PACKAGE_NAME, "TaskRegister\$$moduleName")
+            .addType(
+                TypeSpec.classBuilder("TaskRegister\$$moduleName")
+                    .addKdoc(ProcessorUtils.JAVADOC)
+                    .addSuperinterface(ModuleTaskRegister::class.java)
+                    .addFunction(loadTaskMethodBuilder.build())
+                    .build()
+            )
             .build()
             .writeTo(filer)
 
         return true
-    }
-
-    @ExperimentalStdlibApi
-    private fun formatArray(array: Array<String>): String {
-        val sb = StringBuilder()
-        array.forEach {
-            sb.append("\"$it\"").append(",")
-        }
-        if (sb.isNotEmpty()) {
-            sb.deleteAt(sb.length - 1)
-        }
-        return "new String[]{$sb}"
     }
 }
