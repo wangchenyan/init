@@ -2,9 +2,10 @@ package me.wcy.init.api
 
 import android.app.Application
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import me.wcy.init.annotation.InitTask
 import me.wcy.init.annotation.TaskInfo
 import kotlin.system.measureTimeMillis
@@ -15,7 +16,7 @@ import kotlin.system.measureTimeMillis
 class CTaskManager private constructor(
     private val app: Application,
     private val processName: String
-) {
+) : CoroutineScope by GlobalScope {
     private val completedTasks: MutableSet<String> = mutableSetOf()
 
     fun start() {
@@ -49,18 +50,16 @@ class CTaskManager private constructor(
 
         // 无依赖的异步任务
         singleAsyncTasks.forEach { task ->
-            flowOf(task).flowOn(Dispatchers.Default).onEach { execute(it) }
-                .launchIn(GlobalScope)
+            launch(Dispatchers.Default) { execute(task) }
         }
 
         // 无依赖的同步任务
         if (ThreadUtils.isInMainThread()) {
             singleSyncTasks.forEach { execute(it) }
         } else {
-            singleSyncTasks.asFlow()
-                .flowOn(Dispatchers.Main)
-                .onEach { execute(it) }
-                .launchIn(GlobalScope)
+            singleSyncTasks.forEach { task ->
+                launch(Dispatchers.Main) { execute(task) }
+            }
         }
     }
 
@@ -112,21 +111,21 @@ class CTaskManager private constructor(
     }
 
     private fun afterExecute(name: String, children: List<TaskInfo>) {
-        synchronized(completedTasks) {
+        val allowTasks = synchronized(completedTasks) {
             completedTasks.add(name)
             children.filter { completedTasks.containsAll(it.depends) }
-                .forEach { task ->
-                    if (task.background.not() && ThreadUtils.isInMainThread()) {
-                        execute(task)
-                    } else {
-                        val dispatcher =
-                            if (task.background) Dispatchers.Default else Dispatchers.Main
-                        flowOf(task)
-                            .flowOn(dispatcher)
-                            .onEach { execute(it) }
-                            .launchIn(GlobalScope)
-                    }
-                }
+        }
+        if (ThreadUtils.isInMainThread()) {
+            // 如果是主线程，先将异步任务放入队列，再执行同步任务
+            allowTasks.filter { it.background }.forEach {
+                launch(Dispatchers.Default) { execute(it) }
+            }
+            allowTasks.filter { it.background.not() }.forEach { execute(it) }
+        } else {
+            allowTasks.forEach {
+                val dispatcher = if (it.background) Dispatchers.Default else Dispatchers.Main
+                launch(dispatcher) { execute(it) }
+            }
         }
     }
 
