@@ -12,13 +12,25 @@ class TaskInfo(
     process: Array<String>,
     depends: Array<String>,
     val task: ITask
-) {
+) : Comparable<TaskInfo> {
     val depends: Set<String>
     val process: Set<String>
-    val children: MutableList<TaskInfo> = mutableListOf()
+    val children: MutableSet<TaskInfo> = mutableSetOf()
 
     init {
         this.depends = HashSet(listOf(*depends))
         this.process = HashSet(listOf(*process))
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is TaskInfo && other.name == name
+    }
+
+    override fun compareTo(other: TaskInfo): Int {
+        return priority.compareTo(other.priority)
     }
 }

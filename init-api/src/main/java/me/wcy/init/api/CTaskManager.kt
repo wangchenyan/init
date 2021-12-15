@@ -22,7 +22,7 @@ class CTaskManager private constructor(
     fun start() {
         val taskList = FinalTaskRegister().taskList
         checkDuplicateName(taskList)
-        taskList.sortBy { it.priority }
+        taskList.sort()
         val taskMap = taskList.map { it.name to it }.toMap()
         val singleSyncTasks: MutableSet<TaskInfo> = mutableSetOf()
         val singleAsyncTasks: MutableSet<TaskInfo> = mutableSetOf()
@@ -110,7 +110,7 @@ class CTaskManager private constructor(
         afterExecute(task.name, task.children)
     }
 
-    private fun afterExecute(name: String, children: List<TaskInfo>) {
+    private fun afterExecute(name: String, children: Set<TaskInfo>) {
         val allowTasks = synchronized(completedTasks) {
             completedTasks.add(name)
             children.filter { completedTasks.containsAll(it.depends) }
