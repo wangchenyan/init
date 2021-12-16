@@ -1,5 +1,6 @@
 # CInit
 [![](https://jitpack.io/v/wangchenyan/init.svg)](https://jitpack.io/#wangchenyan/init)
+
 Android 依赖任务启动框架
 
 ## Feature
@@ -14,19 +15,19 @@ Android 依赖任务启动框架
 | 配置方式 | 在 Manifest 中配置任务 | 使用注解配置任务 |
 
 ## Usage
-root project's build.gradle
+**root project's build.gradle**
 
 ```groovy
 buildscript {
-    // ...
-    dependencies {
-        // 用于字节码注入
-        classpath 'com.billy.android:autoregister:1.4.2'
-    }
+  // ...
+  dependencies {
+    // 用于字节码注入
+    classpath 'com.billy.android:autoregister:1.4.2'
+  }
 }
 ```
 
-app's build.gradle
+**app's build.gradle**
 
 ```groovy
 apply plugin: 'kotlin-kapt'
@@ -34,26 +35,26 @@ apply plugin: 'auto-register'
 
 // 配置 AutoRegister 注入信息
 autoregister {
-    registerInfo = [
-            [
-                    'scanInterface'         : 'me.wcy.init.annotation.ModuleTaskRegister',
-                    'codeInsertToClassName' : 'me.wcy.init.api.FinalTaskRegister',
-                    'codeInsertToMethodName': 'init',
-                    'registerMethodName'    : 'register',
-                    'include'               : ['me/wcy/init/apt/taskregister/.*']
-            ]
+  registerInfo = [
+    [
+      'scanInterface'         : 'me.wcy.init.annotation.ModuleTaskRegister',
+      'codeInsertToClassName' : 'me.wcy.init.api.FinalTaskRegister',
+      'codeInsertToMethodName': 'init',
+      'registerMethodName'    : 'register',
+      'include'               : ['me/wcy/init/apt/taskregister/.*']
     ]
+  ]
 }
 
 kapt {
-    arguments {
-        arg("moduleName", project.name)
-    }
+  arguments {
+    arg("moduleName", project.name)
+  }
 }
 
 dependencies {
-    kapt "com.github.wangchenyan.init:init-compiler:${latestVersion}"
-    implementation "com.github.wangchenyan.init:init-api:${latestVersion}"
+  kapt "com.github.wangchenyan.init:init-compiler:${latestVersion}"
+  implementation "com.github.wangchenyan.init:init-api:${latestVersion}"
 }
 ```
 
