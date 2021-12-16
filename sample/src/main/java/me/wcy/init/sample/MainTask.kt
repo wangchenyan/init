@@ -11,7 +11,9 @@ import me.wcy.init.api.IInitTask
  */
 @InitTask(
     name = "main1",
+    background = false,
     process = [InitTask.PROCESS_MAIN],
+    priority = InitTask.PRIORITY_NORM,
     depends = ["lib1"]
 )
 class MainTask : IInitTask {
