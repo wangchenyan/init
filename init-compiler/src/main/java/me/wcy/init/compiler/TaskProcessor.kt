@@ -60,7 +60,6 @@ class TaskProcessor : AbstractProcessor() {
         return SourceVersion.latestSupported()
     }
 
-    @DelicateKotlinPoetApi("")
     override fun process(
         annotations: MutableSet<out TypeElement>?,
         roundEnv: RoundEnvironment

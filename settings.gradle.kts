@@ -1,0 +1,5 @@
+include(":init-compiler")
+include(":init-api")
+include(":init-annotation")
+include(":sample")
+include(":sample-lib")
