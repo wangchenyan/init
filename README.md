@@ -63,6 +63,8 @@ dependencies {
 If use `kotlin dsl`
 
 ```kotlin
+import java.util.*
+
 plugins {
   id("com.google.devtools.ksp") version "1.5.31-1.0.0"
   id("auto-register")
