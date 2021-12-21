@@ -15,7 +15,7 @@ Android 依赖任务启动框架
 | 配置方式 | 在 Manifest 中配置任务 | 使用注解配置任务 |
 
 ## Usage
-**root project's build.gradle**
+**Root project's build.gradle**
 
 ```groovy
 buildscript {
@@ -27,7 +27,9 @@ buildscript {
 }
 ```
 
-**app's build.gradle**
+**App's build.gradle(.kts)**
+
+If use `gradle dsl`
 
 ```groovy
 apply plugin: 'kotlin-kapt'
@@ -55,6 +57,40 @@ kapt {
 dependencies {
   kapt "com.github.wangchenyan.init:init-compiler:${latestVersion}"
   implementation "com.github.wangchenyan.init:init-api:${latestVersion}"
+}
+```
+
+If use `kotlin dsl`
+
+```kotlin
+import java.util.*
+
+plugins {
+  id("com.google.devtools.ksp") version "1.5.31-1.0.0"
+  id("auto-register")
+}
+
+autoregister {
+  registerInfo = ArrayList(
+    listOf(
+      mapOf(
+        "scanInterface" to "me.wcy.init.annotation.ModuleTaskRegister",
+        "codeInsertToClassName" to "me.wcy.init.api.FinalTaskRegister",
+        "codeInsertToMethodName" to "init",
+        "registerMethodName" to "register",
+        "include" to ArrayList(listOf("me/wcy/init/apt/taskregister/.*"))
+      )
+    )
+  )
+}
+
+ksp {
+  arg("moduleName", project.name)
+}
+
+dependencies {
+  ksp("com.github.wangchenyan.init:init-compiler-ksp:${latestVersion}")
+  implementation("com.github.wangchenyan.init:init-api:${latestVersion}")
 }
 ```
 
