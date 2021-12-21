@@ -1,7 +1,8 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    // id("com.github.dcendents.android-maven")
+    `maven-publish`
+    //id("com.github.dcendents.android-maven")
 }
 
 android {
@@ -22,4 +23,20 @@ android {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
     api(project(":init-annotation"))
+}
+
+// Because the components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = "com.github.wangchenyan.init"
+                artifactId = "init-api"
+                version = "0.1"
+
+                from(components["release"])
+            }
+        }
+    }
 }
