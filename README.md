@@ -29,7 +29,7 @@ buildscript {
 
 **App's build.gradle(.kts)**
 
-If use gradle dsl
+If use `gradle dsl`
 
 ```groovy
 apply plugin: 'kotlin-kapt'
@@ -60,7 +60,7 @@ dependencies {
 }
 ```
 
-If use kotlin dsl
+If use `kotlin dsl`
 
 ```kotlin
 plugins {
