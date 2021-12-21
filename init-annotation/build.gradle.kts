@@ -1,14 +1,11 @@
 plugins {
     id("kotlin")
-    `maven-publish`
-    //id("com.github.dcendents.android-maven")
+    id("maven-publish")
 }
 
 dependencies {
 }
 
-// Because the components are created only during the afterEvaluate phase, you must
-// configure your publications using the afterEvaluate() lifecycle method.
 afterEvaluate {
     publishing {
         publications {

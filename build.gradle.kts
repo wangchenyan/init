@@ -15,7 +15,6 @@ buildscript {
         classpath("com.android.tools.build:gradle:7.0.4")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.extra["kotlinVersion"]}")
         classpath("com.billy.android:autoregister:1.4.2")
-        classpath("com.github.dcendents:android-maven-gradle-plugin:2.1")
     }
 }
 

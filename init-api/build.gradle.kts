@@ -1,8 +1,7 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    `maven-publish`
-    //id("com.github.dcendents.android-maven")
+    id("maven-publish")
 }
 
 android {
@@ -25,8 +24,6 @@ dependencies {
     api(project(":init-annotation"))
 }
 
-// Because the components are created only during the afterEvaluate phase, you must
-// configure your publications using the afterEvaluate() lifecycle method.
 afterEvaluate {
     publishing {
         publications {
