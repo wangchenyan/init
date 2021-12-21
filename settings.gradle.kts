@@ -1,4 +1,5 @@
 include(":init-compiler")
+include(":init-compiler-ksp")
 include(":init-api")
 include(":init-annotation")
 include(":sample")

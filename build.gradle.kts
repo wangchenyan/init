@@ -1,7 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     extra.apply {
-        set("kotlinVersion", "1.6.10")
+        set("kotlinVersion", "1.5.31")
+        set("kspVersion", "1.5.31-1.0.0")
         set("compileSdk", 31)
         set("minSdk", 14)
         set("targetSdk", 31)

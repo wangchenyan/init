@@ -28,10 +28,6 @@ afterEvaluate {
     publishing {
         publications {
             create<MavenPublication>("maven") {
-                groupId = "com.github.wangchenyan.init"
-                artifactId = "init-api"
-                version = "0.1"
-
                 from(components["release"])
             }
         }

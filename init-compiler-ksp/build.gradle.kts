@@ -3,8 +3,12 @@ plugins {
     id("maven-publish")
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
-    annotationProcessor("com.google.auto.service:auto-service:1.0")
+    implementation("com.google.devtools.ksp:symbol-processing-api:${rootProject.extra["kspVersion"]}")
     implementation("com.squareup:kotlinpoet:1.10.2")
     implementation(project(":init-annotation"))
 }
