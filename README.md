@@ -13,6 +13,7 @@ Android 依赖任务启动框架
 | 模块化 | ❌<br>使用 Class 定义依赖 | ✅<br>使用 String 定义依赖 |
 | 初始化 | ContentProvider 和接口 | 仅接口 |
 | 配置方式 | 在 Manifest 中配置任务 | 使用注解配置任务 |
+| 回调 | ❌ | ✅<br>支持单个任务/全部任务执行完成回调 |
 
 ## Usage
 **Root project's build.gradle**
