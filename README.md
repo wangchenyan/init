@@ -117,7 +117,11 @@ class AppApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        CTaskManager.start(this)
+        CTaskManager.start(this, onTaskComplete = {
+            Log.i("WCY", "task complete: $it")
+        }) {
+            Log.i("WCY", "all task complete")
+        }
     }
 }
 ```

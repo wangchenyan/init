@@ -1,6 +1,7 @@
 package me.wcy.init.sample
 
 import android.app.Application
+import android.util.Log
 import me.wcy.init.api.CTaskManager
 
 /**
@@ -10,6 +11,10 @@ class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        CTaskManager.start(this)
+        CTaskManager.start(this, onTaskComplete = {
+            Log.i("WCY", "task complete: $it")
+        }) {
+            Log.i("WCY", "all task complete")
+        }
     }
 }
