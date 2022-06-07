@@ -15,19 +15,21 @@ import kotlin.system.measureTimeMillis
  */
 class CTaskManager private constructor(
     private val app: Application,
-    private val processName: String
+    private val processName: String,
+    private val taskList: List<TaskInfo>,
+    private val onTaskComplete: ((String) -> Unit)?,
+    private val onAllTaskComplete: (() -> Unit)?
 ) : CoroutineScope by GlobalScope {
     private val completedTasks: MutableSet<String> = mutableSetOf()
 
     fun start() {
-        val taskList = FinalTaskRegister().taskList
         checkDuplicateName(taskList)
-        taskList.sort()
-        val taskMap = taskList.map { it.name to it }.toMap()
+        val sortedList = taskList.sorted()
+        val taskMap = sortedList.associateBy { it.name }
         val singleSyncTasks: MutableSet<TaskInfo> = mutableSetOf()
         val singleAsyncTasks: MutableSet<TaskInfo> = mutableSetOf()
 
-        taskList.forEach { task ->
+        sortedList.forEach { task ->
             when {
                 task.depends.isNotEmpty() -> {
                     checkCircularDependency(listOf(task.name), task.depends, taskMap)
@@ -54,12 +56,8 @@ class CTaskManager private constructor(
         }
 
         // 无依赖的同步任务
-        if (ThreadUtils.isInMainThread()) {
+        launch(Dispatchers.Main.immediate) {
             singleSyncTasks.forEach { execute(it) }
-        } else {
-            singleSyncTasks.forEach { task ->
-                launch(Dispatchers.Main) { execute(task) }
-            }
         }
     }
 
@@ -96,6 +94,7 @@ class CTaskManager private constructor(
                 }.onFailure {
                     Log.e(TAG, "executing task [${task.name}] error", it)
                 }
+                onTaskComplete?.invoke(task.name)
             }
             Log.d(
                 TAG, "Execute task [${task.name}] complete in process [$processName] " +
@@ -114,18 +113,13 @@ class CTaskManager private constructor(
         val allowTasks = synchronized(completedTasks) {
             completedTasks.add(name)
             children.filter { completedTasks.containsAll(it.depends) }
+        }.sorted()
+        allowTasks.forEach {
+            val dispatcher = if (it.background) Dispatchers.Default else Dispatchers.Main.immediate
+            launch(dispatcher) { execute(it) }
         }
-        if (ThreadUtils.isInMainThread()) {
-            // 如果是主线程，先将异步任务放入队列，再执行同步任务
-            allowTasks.filter { it.background }.forEach {
-                launch(Dispatchers.Default) { execute(it) }
-            }
-            allowTasks.filter { it.background.not() }.forEach { execute(it) }
-        } else {
-            allowTasks.forEach {
-                val dispatcher = if (it.background) Dispatchers.Default else Dispatchers.Main
-                launch(dispatcher) { execute(it) }
-            }
+        if (taskList.size == completedTasks.size) {
+            onAllTaskComplete?.invoke()
         }
     }
 
@@ -160,18 +154,21 @@ class CTaskManager private constructor(
 
         /**
          * 启动任务
-         */
-        fun start(app: Application) {
-            start(app, ProcessUtils.getProcessName(app))
-        }
-
-        /**
-         * 启动任务
          *
          * @param processName 当前进程名，如果 [start] 内部获取进程名不准确，可自行传入
+         * @param onTaskComplete 单个任务执行完成，在任务所在线程回调
+         * @param onAllTaskComplete 所有任务执行完成，在最后一个任务所在线程回调
          */
-        fun start(app: Application, processName: String) {
-            CTaskManager(app, processName).start()
+        @JvmStatic
+        @JvmOverloads
+        fun start(
+            app: Application,
+            processName: String = ProcessUtils.getProcessName(app),
+            onTaskComplete: ((String) -> Unit)? = null,
+            onAllTaskComplete: (() -> Unit)? = null,
+        ) {
+            val taskList = FinalTaskRegister().taskList
+            CTaskManager(app, processName, taskList, onTaskComplete, onAllTaskComplete).start()
         }
     }
 }
