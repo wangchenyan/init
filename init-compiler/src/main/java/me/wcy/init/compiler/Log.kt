@@ -14,21 +14,21 @@ object Log {
     }
 
     fun i(msg: String) {
-        sMessenger?.printMessage(Diagnostic.Kind.NOTE, msg + "\r\n")
+        sMessenger?.printMessage(Diagnostic.Kind.NOTE, msg + "\n")
     }
 
     fun w(msg: String) {
-        sMessenger?.printMessage(Diagnostic.Kind.WARNING, msg + "\r\n")
+        sMessenger?.printMessage(Diagnostic.Kind.WARNING, msg + "\n")
     }
 
     fun e(msg: String) {
-        sMessenger?.printMessage(Diagnostic.Kind.ERROR, msg + "\r\n")
+        sMessenger?.printMessage(Diagnostic.Kind.ERROR, msg + "\n")
     }
 
     fun e(msg: String, tr: Throwable) {
         sMessenger?.printMessage(
             Diagnostic.Kind.ERROR,
-            msg + "\r\n" + getStackTraceString(tr) + "\r\n"
+            msg + "\n" + getStackTraceString(tr) + "\n"
         )
     }
 
