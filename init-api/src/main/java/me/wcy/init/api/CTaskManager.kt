@@ -1,10 +1,11 @@
 package me.wcy.init.api
 
 import android.app.Application
+import android.os.SystemClock
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import me.wcy.init.annotation.InitTask
 import me.wcy.init.annotation.TaskInfo
@@ -17,9 +18,9 @@ class CTaskManager private constructor(
     private val app: Application,
     private val processName: String,
     private val taskList: List<TaskInfo>,
-    private val onTaskComplete: ((String) -> Unit)?,
+    private val onTaskComplete: ((String, Result<Unit>) -> Unit)?,
     private val onAllTaskComplete: (() -> Unit)?
-) : CoroutineScope by GlobalScope {
+) : CoroutineScope by MainScope() {
     private val completedTasks: MutableSet<String> = mutableSetOf()
 
     fun start() {
@@ -88,17 +89,18 @@ class CTaskManager private constructor(
 
     private fun execute(task: TaskInfo) {
         if (isMatchProgress(task)) {
+            val result: Result<Unit>
             val cost = measureTimeMillis {
-                kotlin.runCatching {
+                result = kotlin.runCatching {
                     (task.task as IInitTask).execute(app)
                 }.onFailure {
                     Log.e(TAG, "executing task [${task.name}] error", it)
                 }
-                onTaskComplete?.invoke(task.name)
+                onTaskComplete?.invoke(task.name, result)
             }
             Log.d(
                 TAG, "Execute task [${task.name}] complete in process [$processName] " +
-                        "thread [${Thread.currentThread().name}], cost: ${cost}ms"
+                        "thread [${Thread.currentThread().name}], cost: ${cost}ms, result: $result"
             )
         } else {
             Log.w(
@@ -164,11 +166,16 @@ class CTaskManager private constructor(
         fun start(
             app: Application,
             processName: String = ProcessUtils.getProcessName(app),
-            onTaskComplete: ((String) -> Unit)? = null,
+            onTaskComplete: ((String, Result<Unit>) -> Unit)? = null,
             onAllTaskComplete: (() -> Unit)? = null,
         ) {
+            val start = SystemClock.elapsedRealtime()
             val taskList = FinalTaskRegister().taskList
-            CTaskManager(app, processName, taskList, onTaskComplete, onAllTaskComplete).start()
+            CTaskManager(app, processName, taskList, onTaskComplete) {
+                val cost = SystemClock.elapsedRealtime() - start
+                Log.d(TAG, "Execute all task complete in process [$processName], cost: ${cost}ms")
+                onAllTaskComplete?.invoke()
+            }.start()
         }
     }
 }
