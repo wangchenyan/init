@@ -1,10 +1,12 @@
 # CInit
+
 [![](https://jitpack.io/v/wangchenyan/init.svg)](https://jitpack.io/#wangchenyan/init)
 
 Android 依赖任务启动框架
 
 ## Feature
-|  | JetPack StartUp | CInit |
+
+| | JetPack StartUp | CInit |
 | :-: | :-: | :-: |
 | 任务依赖 | ✅ | ✅ |
 | 异步任务 | ❌ | ✅ |
@@ -16,86 +18,101 @@ Android 依赖任务启动框架
 | 回调 | ❌ | ✅<br>支持单个任务/全部任务执行完成回调 |
 
 ## Usage
-**Root project's build.gradle**
 
-```groovy
+### 1. 添加 JitPack 仓库
+
+```kotlin
+// Top-level build file
 buildscript {
-  // ...
-  dependencies {
-    // 用于字节码注入
-    classpath 'com.billy.android:autoregister:1.4.2'
-  }
+    repositories {
+        maven("https://jitpack.io")
+    }
+}
+
+allprojects {
+    repositories {
+        maven("https://jitpack.io")
+    }
 }
 ```
 
-**App's build.gradle(.kts)**
+### 2. 添加 auto-register 插件，用于字节码注入
 
-If use `gradle dsl`
+```kotlin
+// Top-level build file
+buildscript {
+    dependencies {
+        classpath("com.github.wangchenyan:AutoRegister:1.4.3-beta02")
+    }
+}
+```
 
-```groovy
-apply plugin: 'kotlin-kapt'
-apply plugin: 'auto-register'
+```kotlin
+// app build file
+plugins {
+    id("auto-register")
+}
 
-// 配置 AutoRegister 注入信息
 autoregister {
-  registerInfo = [
-    [
-      'scanInterface'         : 'me.wcy.init.annotation.ModuleTaskRegister',
-      'codeInsertToClassName' : 'me.wcy.init.api.FinalTaskRegister',
-      'codeInsertToMethodName': 'init',
-      'registerMethodName'    : 'register',
-      'include'               : ['me/wcy/init/apt/taskregister/.*']
-    ]
-  ]
+    registerInfo = listOf(
+        mapOf(
+            "scanInterface" to "me.wcy.init.annotation.ModuleTaskRegister",
+            "codeInsertToClassName" to "me.wcy.init.api.FinalTaskRegister",
+            "codeInsertToMethodName" to "init",
+            "registerMethodName" to "register",
+            "include" to listOf("me/wcy/init/apt/taskregister/.*")
+        )
+    )
+}
+```
+
+### 3. 添加 init 依赖和注解处理器
+
+kapt 和 ksp 二选一
+
+#### 3.1 使用 kapt
+
+```kotlin
+// app build file
+plugins {
+    id("kotlin-kapt")
 }
 
 kapt {
-  arguments {
-    arg("moduleName", project.name)
-  }
+    arguments {
+        arg("moduleName", project.name)
+    }
 }
 
 dependencies {
-  kapt "com.github.wangchenyan.init:init-compiler:${latestVersion}"
-  implementation "com.github.wangchenyan.init:init-api:${latestVersion}"
+    kapt("com.github.wangchenyan.init:init-compiler:${latestVersion}")
+    implementation("com.github.wangchenyan.init:init-api:${latestVersion}")
 }
 ```
 
-If use `kotlin dsl`
+#### 3.2 使用 ksp
 
 ```kotlin
-import java.util.*
-
+// app build file
 plugins {
-  id("com.google.devtools.ksp") version "1.5.31-1.0.0"
-  id("auto-register")
-}
-
-autoregister {
-  registerInfo = ArrayList(
-    listOf(
-      mapOf(
-        "scanInterface" to "me.wcy.init.annotation.ModuleTaskRegister",
-        "codeInsertToClassName" to "me.wcy.init.api.FinalTaskRegister",
-        "codeInsertToMethodName" to "init",
-        "registerMethodName" to "register",
-        "include" to ArrayList(listOf("me/wcy/init/apt/taskregister/.*"))
-      )
-    )
-  )
+    // 注意 ksp 版本和 kotlin 版本需要对应
+    id("com.google.devtools.ksp") version "1.5.31-1.0.0"
 }
 
 ksp {
-  arg("moduleName", project.name)
+    arg("moduleName", project.name)
 }
 
 dependencies {
-  ksp("com.github.wangchenyan.init:init-compiler-ksp:${latestVersion}")
-  implementation("com.github.wangchenyan.init:init-api:${latestVersion}")
+    ksp("com.github.wangchenyan.init:init-compiler-ksp:${latestVersion}")
+    implementation("com.github.wangchenyan.init:init-api:${latestVersion}")
 }
 ```
 
-定义任务
+### 4. 在代码中使用
+
+#### 4.1 定义任务
+
 ```kotlin
 @InitTask(
     name = "main",
@@ -111,7 +128,8 @@ class MainTask : IInitTask {
 }
 ```
 
-在应用 Application 中启动任务
+#### 4.2 在应用 Application 中启动任务
+
 ```kotlin
 class AppApplication : Application() {
 
@@ -127,6 +145,7 @@ class AppApplication : Application() {
 ```
 
 ## About Me
+
 掘金：https://juejin.cn/user/2313028193754168<br>
 微博：https://weibo.com/wangchenyan1993
 

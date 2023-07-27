@@ -1,5 +1,3 @@
-import java.util.*
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -10,15 +8,13 @@ plugins {
 
 /** InitTask Start */
 autoregister {
-    registerInfo = ArrayList(
-        listOf(
-            mapOf(
-                "scanInterface" to "me.wcy.init.annotation.ModuleTaskRegister",
-                "codeInsertToClassName" to "me.wcy.init.api.FinalTaskRegister",
-                "codeInsertToMethodName" to "init",
-                "registerMethodName" to "register",
-                "include" to ArrayList(listOf("me/wcy/init/apt/taskregister/.*"))
-            )
+    registerInfo = listOf(
+        mapOf(
+            "scanInterface" to "me.wcy.init.annotation.ModuleTaskRegister",
+            "codeInsertToClassName" to "me.wcy.init.api.FinalTaskRegister",
+            "codeInsertToMethodName" to "init",
+            "registerMethodName" to "register",
+            "include" to listOf("me/wcy/init/apt/taskregister/.*")
         )
     )
 }

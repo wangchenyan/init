@@ -9,21 +9,21 @@ buildscript {
     }
     repositories {
         google()
-        jcenter()
         mavenCentral()
+        maven("https://jitpack.io")
     }
     dependencies {
         classpath("com.android.tools.build:gradle:7.0.4")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.extra["kotlinVersion"]}")
-        classpath("com.billy.android:autoregister:1.4.2")
+        classpath("com.github.wangchenyan:AutoRegister:1.4.3-beta02")
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
+        maven("https://jitpack.io")
     }
 }
 
