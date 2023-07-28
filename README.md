@@ -22,7 +22,7 @@ Android 依赖任务启动框架
 ### 1. 添加 Jitpack 仓库
 
 ```kotlin
-// settings build file
+// settings file
 pluginManagement {
     repositories {
         maven("https://jitpack.io")
