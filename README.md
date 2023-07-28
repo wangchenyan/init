@@ -93,10 +93,18 @@ dependencies {
 #### 3.2 使用 ksp
 
 ```kotlin
+// Top-level build file
+plugins {
+    // 注意 ksp 版本和 kotlin 版本需要对应
+    id("com.google.devtools.ksp") version "1.8.20-1.0.11" apply false
+}
+```
+
+```kotlin
 // app build file
 plugins {
     // 注意 ksp 版本和 kotlin 版本需要对应
-    id("com.google.devtools.ksp") version "1.5.31-1.0.0"
+    id("com.google.devtools.ksp") version "1.8.20-1.0.11"
 }
 
 ksp {
