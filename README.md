@@ -19,17 +19,16 @@ Android 依赖任务启动框架
 
 ## Usage
 
-### 1. 添加 JitPack 仓库
+### 1. 添加 Jitpack 仓库
 
 ```kotlin
-// Top-level build file
-buildscript {
+// settings build file
+pluginManagement {
     repositories {
         maven("https://jitpack.io")
     }
 }
-
-allprojects {
+dependencyResolutionManagement {
     repositories {
         maven("https://jitpack.io")
     }
@@ -39,7 +38,7 @@ allprojects {
 ### 2. 添加 auto-register 插件，用于字节码注入
 
 ```kotlin
-// Top-level build file
+// root build file
 buildscript {
     dependencies {
         classpath("com.github.wangchenyan:AutoRegister:1.4.3-beta02")
@@ -63,6 +62,8 @@ autoregister {
             "include" to listOf("me/wcy/init/apt/taskregister/.*")
         )
     )
+    // 如果 ASM 版本不兼容，可修改为兼容版本，默认为 ASM6
+    amsApiVersion = Opcodes.ASM6
 }
 ```
 
@@ -93,7 +94,7 @@ dependencies {
 #### 3.2 使用 ksp
 
 ```kotlin
-// Top-level build file
+// root build file
 plugins {
     // 注意 ksp 版本和 kotlin 版本需要对应
     id("com.google.devtools.ksp") version "1.8.20-1.0.11" apply false
@@ -131,7 +132,7 @@ dependencies {
 )
 class MainTask : IInitTask {
     override fun execute(application: Application) {
-        // Do init
+        // do init
     }
 }
 ```
