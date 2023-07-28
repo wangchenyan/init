@@ -13,7 +13,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "service-loader"
+rootProject.name = "init"
 include(":init-compiler")
 include(":init-compiler-ksp")
 include(":init-api")
