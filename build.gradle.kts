@@ -1,32 +1,18 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id("com.android.application") version "7.4.2" apply false
+    id("com.android.library") version "7.4.2" apply false
+    id("org.jetbrains.kotlin.android") version "1.8.20" apply false
+    id("com.google.devtools.ksp") version "1.8.20-1.0.11" apply false
+}
+
 buildscript {
     extra.apply {
-        set("kotlinVersion", "1.5.31")
-        set("kspVersion", "1.5.31-1.0.0")
-        set("compileSdk", 31)
+        set("compileSdk", 33)
         set("minSdk", 14)
-        set("targetSdk", 31)
-    }
-    repositories {
-        google()
-        mavenCentral()
-        maven("https://jitpack.io")
+        set("targetSdk", 33)
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.4")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.extra["kotlinVersion"]}")
         classpath("com.github.wangchenyan:AutoRegister:1.4.3-beta02")
     }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven("https://jitpack.io")
-    }
-}
-
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
 }

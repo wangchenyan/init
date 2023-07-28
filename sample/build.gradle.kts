@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-kapt")
-    id("com.google.devtools.ksp") version "1.5.31-1.0.0"
+    id("com.google.devtools.ksp") version "1.8.20-1.0.11"
     id("auto-register")
 }
 
@@ -32,6 +32,7 @@ ksp {
 /** InitTask End */
 
 android {
+    namespace = "me.wcy.init.sample"
     compileSdk = rootProject.extra["compileSdk"] as Int
 
     defaultConfig {
@@ -55,8 +56,8 @@ android {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
     // kapt(project(":init-compiler"))
     ksp(project(":init-compiler-ksp"))
     implementation(project(":init-api"))

@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace = "me.wcy.init_lib"
     compileSdk = rootProject.extra["compileSdk"] as Int
 
     defaultConfig {
@@ -23,8 +24,8 @@ kapt {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
     kapt(project(":init-compiler"))
     implementation(project(":init-api"))
 }

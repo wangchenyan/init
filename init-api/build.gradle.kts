@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace = "me.wcy.init.api"
     compileSdk = rootProject.extra["compileSdk"] as Int
 
     defaultConfig {
@@ -20,7 +21,7 @@ android {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     api(project(":init-annotation"))
 }
 
